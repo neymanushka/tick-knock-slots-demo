@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"strict": true,
+	    "module": "esnext",
+        "declaration": false,
+        "sourceMap": true,
+		"target": "es6",
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"removeComments": true,
+		"preserveConstEnums": true,
+		"allowSyntheticDefaultImports": true
+	},
+    "outDir": "./"
+}

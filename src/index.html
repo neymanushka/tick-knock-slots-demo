@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+	</head>
+	<style>
+		html,
+		body {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+			--button-size: 100px;
+		}
+
+		.app {
+			position: relative;
+			width: 1024px;
+			height: 573px;
+			margin: 0 auto;
+			background-color: red;
+		}
+
+		.game-container {
+			width: 100%;
+		}
+
+		.ui-container {
+			z-index: 1;
+		}
+
+		.button-spin {
+			position: absolute;
+			top: calc(573px / 2 - (var(--button-size) / 2));
+			left: calc(1024px - var(--button-size) - 20px);
+			fill: red;
+			opacity: 0.5;
+		}
+
+		.button-icon {
+			width: var(--button-size);
+			height: var(--button-size);
+		}
+	</style>
+	<body>
+		<div class="app">
+			<div class="ui-container">
+				<div class="button button-spin">
+					<svg class="button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+						<path
+							d="M66.71,287.91H0v160l47.36-43.59A255.71,255.71,0,0,0,255.9,512C386.54,512,494.19,414.15,510,287.91H445.29A192,192,0,0,1,95,360.6l79.08-72.69Zm0,0"
+						/>
+						<path
+							d="M255.9,0C125.46,0,17.64,97.63,2,224H66.71a192,192,0,0,1,353.26-68l-68,68H512v-160l-45.78,45.78A255.89,255.89,0,0,0,255.9,0Zm0,0"
+						/>
+					</svg>
+				</div>
+			</div>
+			<div class="game-container"></div>
+		</div>
+	</body>
+</html>
