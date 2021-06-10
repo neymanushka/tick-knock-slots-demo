@@ -1,22 +1,73 @@
 import { Entity, Query, System, EntitySnapshot } from 'tick-knock';
+import * as PIXI from 'pixi.js';
+import { createMaskedContainer } from '../helpers/PixiHelper';
+
+import { ObjectComponent } from '../components/ObjectComponent';
 import { SymbolComponent } from '../components/SymbolComponent';
+
 import { lerp, easeInOutBack } from '../helpers/Util';
 
 import { Game } from '../Game';
 
 const SPIN_TIME_MAX = 500;
+const SPIN_DELAY = 20;
+const COUNT = 5;
+const CONTAINERS_PADDING = 155;
+const SYMBOL_HEIGHT = 128;
 
 export class SpinnerSystem extends System {
-	query = new Query((entity: Entity) => entity.has(SymbolComponent));
+	symbols = new Query((entity: Entity) => entity.hasAll(ObjectComponent, SymbolComponent));
+	containers: {
+		container: PIXI.Container;
+		delay: number;
+		time: number;
+		target: number;
+		position: number;
+	}[] = [];
+
 	isSpinning = false;
 
-	constructor() {
+	constructor(parentContainer: PIXI.Container) {
 		super();
 
-		this.query.onEntityAdded.connect(({ current }: EntitySnapshot) => {
-			const component = current.get(SymbolComponent);
-			if (component) {
-				component.container.addChild(component.sprite);
+		for (let i = 0; i < COUNT; i++) {
+			const container = createMaskedContainer(
+				130 + CONTAINERS_PADDING * i,
+				110 - 128,
+				130,
+				360,
+				128
+			);
+			this.containers.push({ container, delay: 20, time: 0, target: 0, position: 0 });
+			parentContainer.addChild(container);
+		}
+
+		this.symbols.onEntityAdded.connect(({ current }: EntitySnapshot) => {
+			const symbolComponent = current.get(SymbolComponent);
+			const objectComponent = current.get(ObjectComponent);
+			if (symbolComponent && objectComponent) {
+				for (const item of this.containers) {
+					const childrenCount = item.container.children.length;
+					if (childrenCount < 5) {
+						objectComponent.container.y = childrenCount * objectComponent.height;
+						item.container.addChild(objectComponent.container);
+						return;
+					}
+				}
+			}
+		});
+
+		Game.events.on('spin', (symbols: number) => {
+			if (!this.isSpinning) {
+				this.isSpinning = true;
+				for (let i = 0; i < this.containers.length; i++) {
+					if (this.containers[i].container.children.length) {
+						this.containers[i].delay = i * SPIN_DELAY;
+						this.containers[i].time = 0;
+						this.containers[i].target = symbols * SYMBOL_HEIGHT;
+						this.containers[i].position = this.containers[i].container.children[0].y;
+					}
+				}
 			}
 		});
 
@@ -24,52 +75,29 @@ export class SpinnerSystem extends System {
 		// 	const comp = current.get(Component) as Component;
 		// 	container.removeChild(comp.sprite);
 		// });
-
-		Game.events.on('spin', (time: number) => {
-			if (!this.isSpinning) {
-				this.isSpinning = true;
-				this.query.entities.forEach((entity) => {
-					const component = entity.get(SymbolComponent);
-					if (component) {
-						component.source = component.sprite.y;
-						component.destination = component.sprite.height * time;
-						component.spinDelay = 0;
-						component.spinTime = 0;
-					}
-				});
-			}
-		});
 	}
 
 	onAddedToEngine() {
-		this.engine.addQuery(this.query);
+		this.engine.addQuery(this.symbols);
 	}
 
 	public update(dt: number) {
-		super.update(dt);
 		if (this.isSpinning) {
-			//console.log('-----');
-			this.query.entities.forEach((entity) => {
-				const component = entity.get(SymbolComponent);
-				if (component) {
-					this.isSpinning = false;
-					if (component.spinDelay > component.spinDelayMax && component.spinTime < SPIN_TIME_MAX) {
-						const norm = component.spinTime / SPIN_TIME_MAX;
-						const ease = easeInOutBack(norm);
-						const t = lerp(0, component.destination, ease);
-						let pos = component.source + t;
-						if (pos > 9 * component.sprite.height) {
-							pos = -component.sprite.height + (pos % (9 * component.sprite.height));
-						}
-						component.sprite.y = pos;
-						// if (!component.spinDelayMax)
-						// 	console.log(component.sprite.height * 3, component.source + t, pos);
-						component.spinTime += dt * 0.2;
+			this.isSpinning = false;
+			for (const spinner of this.containers) {
+				if (spinner.delay <= 0 && spinner.time < SPIN_TIME_MAX) {
+					this.isSpinning = true;
+					const ease = easeInOutBack(spinner.time / SPIN_TIME_MAX);
+					const t = lerp(0, spinner.target, ease);
+					const count = spinner.container.children.length;
+					for (let i = 0; i < count; i++) {
+						const y = (spinner.position + i * SYMBOL_HEIGHT + t) % (count * SYMBOL_HEIGHT);
+						spinner.container.children[i].y = Math.floor(y);
 					}
-					if (component.spinTime < SPIN_TIME_MAX) this.isSpinning = true;
-					component.spinDelay += dt;
+					spinner.time += dt * 0.2;
 				}
-			});
+				spinner.delay -= dt;
+			}
 		}
 	}
 }
