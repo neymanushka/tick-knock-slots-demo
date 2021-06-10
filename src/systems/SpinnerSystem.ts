@@ -17,8 +17,9 @@ const SYMBOL_HEIGHT = 128;
 
 export class SpinnerSystem extends System {
 	symbols = new Query((entity: Entity) => entity.hasAll(ObjectComponent, SymbolComponent));
-	containers: {
+	spinners: {
 		container: PIXI.Container;
+		components: ObjectComponent[];
 		delay: number;
 		time: number;
 		target: number;
@@ -38,7 +39,14 @@ export class SpinnerSystem extends System {
 				360,
 				128
 			);
-			this.containers.push({ container, delay: 20, time: 0, target: 0, position: 0 });
+			this.spinners.push({
+				container,
+				delay: 20,
+				time: 0,
+				target: 0,
+				position: 0,
+				components: [],
+			});
 			parentContainer.addChild(container);
 		}
 
@@ -46,11 +54,12 @@ export class SpinnerSystem extends System {
 			const symbolComponent = current.get(SymbolComponent);
 			const objectComponent = current.get(ObjectComponent);
 			if (symbolComponent && objectComponent) {
-				for (const item of this.containers) {
+				for (const item of this.spinners) {
 					const childrenCount = item.container.children.length;
 					if (childrenCount < 5) {
-						objectComponent.container.y = childrenCount * objectComponent.height;
+						objectComponent.y = childrenCount * objectComponent.height;
 						item.container.addChild(objectComponent.container);
+						item.components.push(objectComponent);
 						return;
 					}
 				}
@@ -60,12 +69,12 @@ export class SpinnerSystem extends System {
 		Game.events.on('spin', (symbols: number) => {
 			if (!this.isSpinning) {
 				this.isSpinning = true;
-				for (let i = 0; i < this.containers.length; i++) {
-					if (this.containers[i].container.children.length) {
-						this.containers[i].delay = i * SPIN_DELAY;
-						this.containers[i].time = 0;
-						this.containers[i].target = symbols * SYMBOL_HEIGHT;
-						this.containers[i].position = this.containers[i].container.children[0].y;
+				for (const [i, spinner] of this.spinners.entries()) {
+					if (spinner.components.length) {
+						spinner.delay = i * SPIN_DELAY;
+						spinner.time = 0;
+						spinner.target = symbols * SYMBOL_HEIGHT;
+						spinner.position = spinner.components[0].y;
 					}
 				}
 			}
@@ -84,15 +93,15 @@ export class SpinnerSystem extends System {
 	public update(dt: number) {
 		if (this.isSpinning) {
 			this.isSpinning = false;
-			for (const spinner of this.containers) {
+			for (const spinner of this.spinners) {
 				if (spinner.delay <= 0 && spinner.time < SPIN_TIME_MAX) {
 					this.isSpinning = true;
 					const ease = easeInOutBack(spinner.time / SPIN_TIME_MAX);
 					const t = lerp(0, spinner.target, ease);
-					const count = spinner.container.children.length;
-					for (let i = 0; i < count; i++) {
+					const count = spinner.components.length;
+					for (const [i, component] of spinner.components.entries()) {
 						const y = (spinner.position + i * SYMBOL_HEIGHT + t) % (count * SYMBOL_HEIGHT);
-						spinner.container.children[i].y = Math.floor(y);
+						component.y = Math.floor(y);
 					}
 					spinner.time += dt * 0.2;
 				}

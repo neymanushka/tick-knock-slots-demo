@@ -17,6 +17,8 @@ import { SpriteComponent } from './components/SpriteComponent';
 import { SpineComponent } from './components/SpineComponent';
 import { ButtonComponent } from './components/ButtonComponent';
 
+import { RenderSystem } from './systems/RenderSystem';
+
 const engine = new Engine();
 
 const app = new PIXI.Application({
@@ -63,7 +65,7 @@ app.loader
 		for (let i = 0; i < 5 * 5; i++) {
 			const animation = i % 4 ? 'running' : 'jump';
 			const entity = new Entity();
-			entity.addComponent(new ObjectComponent(0, 0, 128, 128));
+			entity.addComponent(new ObjectComponent(0, 0, 128, 128, i % 2 ? 1 : 0.1));
 			if (i % 2) entity.addComponent(new SpriteComponent(getRandomTexture()));
 			else entity.addComponent(new SpineComponent(resources.pixie.spineData, animation));
 			entity.addComponent(new SymbolComponent());
@@ -96,6 +98,7 @@ app.loader
 		engine.addSystem(new SpineSystem());
 		engine.addSystem(new SpinnerSystem(Game.spinnersContainer));
 		engine.addSystem(new SpriteSystem());
+		engine.addSystem(new RenderSystem());
 
 		let lastTimestamp = 16;
 		const run = (timestamp = 0) => {
