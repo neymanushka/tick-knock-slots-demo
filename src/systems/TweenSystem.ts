@@ -11,30 +11,36 @@ export class TweenSystem extends System {
 	constructor() {
 		super();
 
-		const onCompleteCallback = (id: number, objectComponent: ObjectComponent) => {
-			const message = `tween_stop_${id}`;
-			console.log(message);
-			Game.events.emit(message);
-			gsap.killTweensOf(objectComponent);
+		const onCompleteCallback = (id: number, entity: Entity) => {
+			const objectComponent = entity.get(ObjectComponent);
+			if (objectComponent) {
+				const message = `tween_stop_${id}`;
+				gsap.killTweensOf(objectComponent);
+				entity.removeComponent(TweenComponent);
+				console.log(message);
+				Game.events.emit(message);
+			}
 		};
 
 		this.query.onEntityAdded.connect(({ current }: EntitySnapshot) => {
 			console.log('tween object added');
+			Game.isTweening = true;
 			const tweenComponent = current.get(TweenComponent);
 			const objectComponent = current.get(ObjectComponent);
 			if (tweenComponent && objectComponent) {
 				const count = tweenComponent.gsapVars.length - 1;
 				for (const [index, tween] of tweenComponent.gsapVars.entries()) {
-					const onComplete = () => onCompleteCallback(current.id, objectComponent);
+					const onComplete = () => onCompleteCallback(current.id, current);
 					const props = index !== count ? tween : { ...tween, onComplete };
 					gsap.to(objectComponent, props);
 				}
 			}
-			current.removeComponent(TweenComponent);
+			//current.removeComponent(TweenComponent);
 		});
 
 		this.query.onEntityRemoved.connect(({ current }: EntitySnapshot) => {
 			console.log('tween object removed');
+			if (!this.query.entities.length) Game.isTweening = false;
 		});
 	}
 

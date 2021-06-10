@@ -9,4 +9,6 @@ export class Game {
 	static spinnersContainer: PIXI.Container = new PIXI.Container();
 	static backgroundContainer: PIXI.Container = new PIXI.Container();
 	static uiContainer: PIXI.Container = new PIXI.Container();
+
+	static isTweening: boolean = false;
 }
