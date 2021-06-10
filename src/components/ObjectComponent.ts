@@ -7,6 +7,7 @@ export class ObjectComponent {
 	width: number;
 	height: number;
 	scale: number;
+	angle = 0;
 	constructor(x: number, y: number, width: number, height: number, scale = 1) {
 		this.container = new PIXI.Container();
 		this.container.width = this.width = width;

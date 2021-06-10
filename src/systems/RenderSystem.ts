@@ -30,6 +30,7 @@ export class RenderSystem extends System {
 				container.width = component.width;
 				container.height = component.height;
 				container.scale.set(component.scale);
+				container.angle = component.angle;
 			}
 		});
 	}

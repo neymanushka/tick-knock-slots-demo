@@ -27,6 +27,7 @@ export class ButtonSystem extends System {
 					Game.events.emit(buttonComponent.eventName + '_down');
 					objectComponent.scale = 1.1;
 				});
+
 				spriteComponent.sprite.on('pointerup', () => {
 					console.log('button up');
 					Game.events.emit(buttonComponent.eventName + '_up');

@@ -1,7 +1,6 @@
 import { Engine, Entity, Query, System, EntitySnapshot } from 'tick-knock';
 import * as PIXI from 'pixi.js';
 import { getRandomValue } from './helpers/Util';
-
 import { SpineParser } from 'pixi-spine';
 
 import { Game } from './Game';
@@ -10,14 +9,15 @@ import { SpinnerSystem } from './systems/SpinnerSystem';
 import { SpriteSystem } from './systems/SpriteSystem';
 import { SpineSystem } from './systems/SpineSystem';
 import { ButtonSystem } from './systems/ButtonSystem';
+import { TweenSystem } from './systems/TweenSystem';
+import { RenderSystem } from './systems/RenderSystem';
 
 import { SymbolComponent } from './components/SymbolComponent';
 import { ObjectComponent } from './components/ObjectComponent';
 import { SpriteComponent } from './components/SpriteComponent';
 import { SpineComponent } from './components/SpineComponent';
 import { ButtonComponent } from './components/ButtonComponent';
-
-import { RenderSystem } from './systems/RenderSystem';
+import { TweenComponent } from './components/TweenComponent';
 
 const engine = new Engine();
 
@@ -94,10 +94,29 @@ app.loader
 			engine.removeEntity(sprite);
 		});
 
+		const query = new Query((entity: Entity) => entity.hasAll(ObjectComponent, SymbolComponent));
+		engine.addQuery(query);
+
+		Game.events.on('spinner_stop', () => {
+			query.entities.forEach((entity) => {
+				const tween = new TweenComponent([{ x: 310, y: 250, duration: 3, yoyo: true, repeat: 1 }]);
+				entity.addComponent(tween);
+			});
+		});
+
+		Game.events.on('tween_stop_26', () => {
+			const tween = new TweenComponent([
+				{ scale: 2, duration: 1, yoyo: true, repeat: 1 },
+				{ x: 500, duration: 2, yoyo: true, repeat: 1 },
+			]);
+			entity.addComponent(tween);
+		});
+
 		engine.addSystem(new ButtonSystem());
 		engine.addSystem(new SpineSystem());
 		engine.addSystem(new SpinnerSystem(Game.spinnersContainer));
 		engine.addSystem(new SpriteSystem());
+		engine.addSystem(new TweenSystem());
 		engine.addSystem(new RenderSystem());
 
 		let lastTimestamp = 16;

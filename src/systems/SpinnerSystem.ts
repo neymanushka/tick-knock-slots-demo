@@ -12,13 +12,14 @@ import { Game } from '../Game';
 const SPIN_TIME_MAX = 500;
 const SPIN_DELAY = 20;
 const COUNT = 5;
-const CONTAINERS_PADDING = 155;
+const PADDING = 20;
+const SPINNER_WIDTH = 134;
 const SYMBOL_HEIGHT = 128;
 
 export class SpinnerSystem extends System {
 	symbols = new Query((entity: Entity) => entity.hasAll(ObjectComponent, SymbolComponent));
+	container: PIXI.Container;
 	spinners: {
-		container: PIXI.Container;
 		components: ObjectComponent[];
 		delay: number;
 		time: number;
@@ -31,35 +32,31 @@ export class SpinnerSystem extends System {
 	constructor(parentContainer: PIXI.Container) {
 		super();
 
+		const width = (PADDING + SPINNER_WIDTH) * COUNT;
+		this.container = createMaskedContainer(130, 110 - 128, width, 360, 128);
+		parentContainer.addChild(this.container);
+
 		for (let i = 0; i < COUNT; i++) {
-			const container = createMaskedContainer(
-				130 + CONTAINERS_PADDING * i,
-				110 - 128,
-				130,
-				360,
-				128
-			);
 			this.spinners.push({
-				container,
 				delay: 20,
 				time: 0,
 				target: 0,
 				position: 0,
 				components: [],
 			});
-			parentContainer.addChild(container);
 		}
 
 		this.symbols.onEntityAdded.connect(({ current }: EntitySnapshot) => {
 			const symbolComponent = current.get(SymbolComponent);
 			const objectComponent = current.get(ObjectComponent);
 			if (symbolComponent && objectComponent) {
-				for (const item of this.spinners) {
-					const childrenCount = item.container.children.length;
+				for (const [i, spinner] of this.spinners.entries()) {
+					const childrenCount = spinner.components.length;
 					if (childrenCount < 5) {
 						objectComponent.y = childrenCount * objectComponent.height;
-						item.container.addChild(objectComponent.container);
-						item.components.push(objectComponent);
+						objectComponent.x = i * (SPINNER_WIDTH + PADDING);
+						this.container.addChild(objectComponent.container);
+						spinner.components.push(objectComponent);
 						return;
 					}
 				}
@@ -107,6 +104,7 @@ export class SpinnerSystem extends System {
 				}
 				spinner.delay -= dt;
 			}
+			if (!this.isSpinning) Game.events.emit('spinner_stop');
 		}
 	}
 }
