@@ -5,6 +5,56 @@ object-assign
 */
 
 /*!
+ * @pixi-spine/base - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:27 UTC
+ *
+ * @pixi-spine/base is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
+ */
+
+/*!
+ * @pixi-spine/loader-base - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:28 UTC
+ *
+ * @pixi-spine/loader-base is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
+ */
+
+/*!
+ * @pixi-spine/runtime-3.7 - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:28 UTC
+ *
+ * @pixi-spine/runtime-3.7 is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
+ */
+
+/*!
+ * @pixi-spine/runtime-3.8 - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:28 UTC
+ *
+ * @pixi-spine/runtime-3.8 is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
+ */
+
+/*!
+ * @pixi-spine/runtime-4.0 - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:29 UTC
+ *
+ * @pixi-spine/runtime-4.0 is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
+ */
+
+/*!
  * @pixi/app - v6.0.4
  * Compiled Tue, 11 May 2021 18:00:23 UTC
  *
@@ -114,6 +164,16 @@ object-assign
  *
  * @pixi/utils is licensed under the MIT License.
  * http://www.opensource.org/licenses/mit-license
+ */
+
+/*!
+ * pixi-spine - v3.0.4
+ * Compiled Mon, 07 Jun 2021 21:57:33 UTC
+ *
+ * pixi-spine is licensed under the MIT License.
+ * http://www.opensource.org/licenses/mit-license
+ * 
+ * Copyright 2019-2020, Ivan Igorevich Popelyshev <ivan.popelyshev@gmail.com>, All Rights Reserved
  */
 
 /*!
