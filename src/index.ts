@@ -2,7 +2,7 @@ import { Engine, Entity, Query, System, EntitySnapshot } from 'tick-knock';
 import * as PIXI from 'pixi.js';
 import { getRandomValue } from './helpers/Util';
 
-import { SpineParser, Spine } from 'pixi-spine';
+import { SpineParser } from 'pixi-spine';
 
 import { Game } from './Game';
 
@@ -34,10 +34,11 @@ spinButton.onpointerup = () => {
 	spinButton.style.opacity = '0.5';
 	Game.events.emit('spin', 15);
 };
+
 SpineParser.registerLoaderPlugin();
 
 app.loader
-	.add('pixie', '/assets/pixie.json')
+	.add('pixie', 'assets/pixie.json')
 	.add('symbols', 'assets/symbols.json')
 	.load((loader, resources) => {
 		Game.app = app;
