@@ -1,5 +1,5 @@
 import { Engine, Entity, Query, System, EntitySnapshot } from 'tick-knock';
-import { createEntity } from './helpers/ecsHelpers';
+import { createEntity } from './helpers/EcsHelpers';
 import * as PIXI from 'pixi.js';
 import { getRandomValue } from './helpers/Util';
 import { SpineParser } from 'pixi-spine';
