@@ -1,4 +1,5 @@
 import { Engine, Entity, Query, System, EntitySnapshot } from 'tick-knock';
+import { createEntity } from './helpers/ecsHelpers';
 import * as PIXI from 'pixi.js';
 import { getRandomValue } from './helpers/Util';
 import { SpineParser } from 'pixi-spine';
@@ -50,7 +51,7 @@ app.loader
 		app.stage.addChild(Game.spinnersContainer);
 		app.stage.addChild(Game.uiContainer);
 
-		const background = PIXI.Sprite.from('./assets/table.png');
+		const background = PIXI.Sprite.from('./assets/table.webp');
 		background.scale.set(0.6);
 		background.x = 25;
 		Game.backgroundContainer.addChild(background);
@@ -63,45 +64,85 @@ app.loader
 		};
 
 		for (let i = 0; i < 5 * 5; i++) {
-			const animation = i % 4 ? 'running' : 'jump';
-			const entity = new Entity();
-			entity.addComponent(new ObjectComponent(0, 0, 128, 128, i % 2 ? 1 : 0.1));
-			if (i % 2) entity.addComponent(new SpriteComponent(getRandomTexture()));
-			else entity.addComponent(new SpineComponent(resources.pixie.spineData, animation));
-			entity.addComponent(new SymbolComponent());
-			engine.addEntity(entity);
+			const symbolContainer = createEntity(engine, [
+				new ObjectComponent({ width: 128, height: 128 }),
+				new SymbolComponent(),
+			]);
+			if (i % 2) {
+				createEntity(engine, [
+					new ObjectComponent({ width: 128, height: 128, parent: symbolContainer }),
+					new SpriteComponent(getRandomTexture()),
+				]);
+			} else {
+				const animation = i % 4 ? 'running' : 'jump';
+				createEntity(engine, [
+					new ObjectComponent({ width: 128, height: 128, scale: 0.1, parent: symbolContainer }),
+					new SpineComponent(resources.pixie.spineData, animation),
+				]);
+			}
 		}
 
-		const entity = new Entity();
-		const obj = new ObjectComponent(50, 600, 128, 128);
-		entity.addComponent(obj);
-		entity.addComponent(new SpriteComponent(resources.symbols.textures['14.png']));
-		entity.addComponent(new ButtonComponent('button_test_event'));
-		engine.addEntity(entity);
-		Game.uiContainer.addChild(obj.container);
+		const uiLayerEntity = createEntity(engine, [
+			new ObjectComponent({ container: Game.uiContainer }),
+		]);
 
-		let sprite: Entity;
+		const entity = createEntity(engine, [
+			new ObjectComponent({
+				x: 50,
+				y: 600,
+				width: 128,
+				height: 128,
+				parent: uiLayerEntity,
+			}),
+			new SpriteComponent(resources.symbols.textures['14.png']),
+			new ButtonComponent('button_test_event'),
+		]);
+
 		Game.events.on('button_test_event_down', () => {
-			sprite = new Entity();
-			const obj = new ObjectComponent(900, 600 - 64, 128, 128);
-			sprite.addComponent(obj);
-			sprite.addComponent(new SpriteComponent(resources.symbols.textures['15.png']));
-			engine.addEntity(sprite);
-			Game.uiContainer.addChild(obj.container);
-		});
+			const sprite = createEntity(engine, [
+				new ObjectComponent({
+					x: 900,
+					y: 600 - 64,
+					width: 128,
+					height: 128,
+					parent: uiLayerEntity,
+				}),
+				new SpriteComponent(resources.symbols.textures['15.png']),
+			]);
 
-		Game.events.on('button_test_event_up', () => {
-			engine.removeEntity(sprite);
+			Game.events.on('button_test_event_up', () => {
+				engine.removeEntity(sprite);
+			});
 		});
 
 		const query = new Query((entity: Entity) => entity.hasAll(ObjectComponent, SymbolComponent));
 		engine.addQuery(query);
 
+		const ramki: Entity[] = [];
 		Game.events.on('spinner_stop', () => {
+			query.entities
+				.filter((entity) => entity.get(ObjectComponent)?.y === 256)
+				.forEach((entity) => {
+					const ramka = createEntity(engine, [
+						new ObjectComponent({
+							x: 0,
+							y: 0,
+							width: 128,
+							height: 128,
+							parent: entity,
+						}),
+						new SpriteComponent(PIXI.Texture.from('./assets/ramka.webp')),
+					]);
+					ramki.push(ramka);
+				});
 			query.entities.forEach((entity) => {
 				const tween = new TweenComponent([{ x: 310, y: 250, duration: 3, yoyo: true, repeat: 1 }]);
 				entity.addComponent(tween);
 			});
+		});
+
+		Game.events.on('spinner_run', () => {
+			ramki.forEach((entity) => engine.removeEntity(entity));
 		});
 
 		Game.events.on('tween_stop_26', () => {

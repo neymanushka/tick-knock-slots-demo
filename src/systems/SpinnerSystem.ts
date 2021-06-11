@@ -65,6 +65,7 @@ export class SpinnerSystem extends System {
 
 		Game.events.on('spin', (symbols: number) => {
 			if (!this.isSpinning && !Game.isTweening) {
+				Game.events.emit('spinner_run');
 				this.isSpinning = true;
 				for (const [i, spinner] of this.spinners.entries()) {
 					if (spinner.components.length) {

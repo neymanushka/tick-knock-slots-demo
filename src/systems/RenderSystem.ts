@@ -9,10 +9,29 @@ export class RenderSystem extends System {
 
 		this.query.onEntityAdded.connect(({ current }: EntitySnapshot) => {
 			console.log('object added');
+			const child = current.get(ObjectComponent);
+			if (child && child.parent) {
+				const parent = child.parent.get(ObjectComponent);
+				if (parent) {
+					parent.container.addChild(child.container);
+					parent.children.add(current);
+				}
+			}
 		});
 
 		this.query.onEntityRemoved.connect(({ current }: EntitySnapshot) => {
 			console.log('object removed');
+			const objectComponent = current.get(ObjectComponent);
+			if (objectComponent) {
+				for (const child of objectComponent.children.values()) {
+					this.engine.removeEntity(child);
+					objectComponent.children.delete(child);
+				}
+				if (objectComponent.parent) {
+					const parent = objectComponent.parent.get(ObjectComponent);
+					parent?.children.delete(current);
+				}
+			}
 		});
 	}
 
